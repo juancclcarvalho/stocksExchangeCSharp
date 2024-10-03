@@ -14,13 +14,13 @@ namespace stocksExchange
         private string password;
         private string receiverEmail;
 
-        public SMTPServer(string server, int port, string senderEmail, string password, string receiverEmail)
+        public SMTPServer(SMTPServerConfig smtpConfig)
         {
-            this.server = server;
-            this.port = port;
-            this.senderEmail = senderEmail;
-            this.password = password;
-            this.receiverEmail = receiverEmail;
+            this.server = smtpConfig.Server;
+            this.port = smtpConfig.Port;
+            this.senderEmail = smtpConfig.SenderEmail;
+            this.password = smtpConfig.Password;
+            this.receiverEmail = smtpConfig.ReceiverEmail;
         }
 
         public void SendEmail(string action, string stockSymbol, float stockPrice)

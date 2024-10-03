@@ -5,16 +5,15 @@ using System.Text.Json;
 
 namespace stocksExchange
 {
-    public class ConsumeAPI
+    public class StockApiClient
     {
         private static readonly HttpClient client = new HttpClient();
 
-        // TODO: look for authentication methods to pass the token
-        public static async Task<string> GetStockDataAsync(string stockSymbol)
+        public static async Task<string> GetStockDataAsync(string stockSymbol, string apiToken)
         {
             try
             {
-                string apiUrl = $"https://brapi.dev/api/quote/{stockSymbol}?interval=1m&token=my_token";
+                string apiUrl = $"https://brapi.dev/api/quote/{stockSymbol}?interval=1m&token={apiToken}";
                 HttpResponseMessage response = await client.GetAsync(apiUrl);
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
