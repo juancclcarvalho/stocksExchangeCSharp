@@ -23,7 +23,7 @@ namespace stocksExchange
             this.receiverEmail = smtpConfig.ReceiverEmail;
         }
 
-        public void SendEmail(string action, string stockSymbol, float stockPrice)
+        public void SendEmail(string message)
         {
             var email = new MimeMessage();
 
@@ -33,7 +33,7 @@ namespace stocksExchange
             email.Subject = "Update on your stocks";
             email.Body = new TextPart(MimeKit.Text.TextFormat.Html)
             {
-                Text = $"The price of the stock {stockSymbol} is {stockPrice}. You should consider {action} it."
+                Text = message
             };
 
             using (var smtp = new SmtpClient())
