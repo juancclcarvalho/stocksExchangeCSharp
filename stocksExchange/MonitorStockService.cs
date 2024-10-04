@@ -6,8 +6,9 @@
             string stockSymbol, float sellPrice, float buyPrice, ref float previousStockPrice, string apiToken, SMTPServer smtpServer
             )
         {
-            Task<string> stockData = StockApiClient.GetStockDataAsync(stockSymbol, apiToken);
-            float stockPrice = StockApiClient.ParseStockData(stockData.Result);
+            Task<string> rawStockData = StockApiClient.GetStockDataAsync(stockSymbol, apiToken);
+            FilteredStockData filteredStockData = StockApiClient.FilterStockData(rawStockData.Result);
+            float stockPrice = filteredStockData.StockPrice;
 
             if (stockPrice >= sellPrice && previousStockPrice != stockPrice)
             {

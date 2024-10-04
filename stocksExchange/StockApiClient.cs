@@ -13,7 +13,7 @@ namespace stocksExchange
         {
             try
             {
-                string apiUrl = $"https://brapi.dev/api/quote/{stockSymbol}?interval=1m&token={apiToken}";
+                string apiUrl = $"https://brapi.dev/api/quote/{stockSymbol}?token={apiToken}";
                 HttpResponseMessage response = await client.GetAsync(apiUrl);
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
@@ -26,10 +26,20 @@ namespace stocksExchange
             }
         }
 
-        public static float ParseStockData(string stockData)
+        public static FilteredStockData FilterStockData(string rawStockData)
         {
-            JsonDocument jsonStockData = JsonDocument.Parse(stockData);
-            return jsonStockData.RootElement.GetProperty("results")[0].GetProperty("regularMarketPrice").GetSingle();
+            ArgumentNullException.ThrowIfNull(rawStockData);
+
+            JsonDocument parsedStockData = JsonDocument.Parse(rawStockData);
+            JsonElement root = parsedStockData.RootElement;
+
+            FilteredStockData filteredStockData = new FilteredStockData();
+            filteredStockData.Currency = root.GetProperty("results")[0].GetProperty("currency").GetString();
+            filteredStockData.LongName = root.GetProperty("results")[0].GetProperty("longName").GetString();
+            filteredStockData.Symbol = root.GetProperty("results")[0].GetProperty("symbol").GetString();
+            filteredStockData.StockPrice = root.GetProperty("results")[0].GetProperty("regularMarketPrice").GetSingle();
+
+            return filteredStockData;
         }
     }
 }

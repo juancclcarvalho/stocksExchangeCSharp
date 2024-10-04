@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "stocksExchange", "stocksExchange\stocksExchange.csproj", "{7077C321-B270-44BA-836A-E08D7ED75DB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "stocksExchange", "stocksExchange\stocksExchange.csproj", "{7077C321-B270-44BA-836A-E08D7ED75DB4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "stocksExchange.Tests", "stocksExchange.Tests\stocksExchange.Tests.csproj", "{46AE9240-1F4C-4A35-A11E-91B3BBABC3F9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{7077C321-B270-44BA-836A-E08D7ED75DB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7077C321-B270-44BA-836A-E08D7ED75DB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7077C321-B270-44BA-836A-E08D7ED75DB4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46AE9240-1F4C-4A35-A11E-91B3BBABC3F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46AE9240-1F4C-4A35-A11E-91B3BBABC3F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46AE9240-1F4C-4A35-A11E-91B3BBABC3F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46AE9240-1F4C-4A35-A11E-91B3BBABC3F9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
