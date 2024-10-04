@@ -26,10 +26,19 @@ namespace stocksExchange
             }
         }
 
-        public static float ParseStockData(string stockData)
+        public static FilteredStockData FilterStockData(string rawStockData)
         {
-            JsonDocument jsonStockData = JsonDocument.Parse(stockData);
-            return jsonStockData.RootElement.GetProperty("results")[0].GetProperty("regularMarketPrice").GetSingle();
+            // TODO: handle exceptions
+            JsonDocument parsedStockData = JsonDocument.Parse(rawStockData);
+            JsonElement root = parsedStockData.RootElement;
+
+            FilteredStockData filteredStockData = new FilteredStockData();
+            filteredStockData.Currency = root.GetProperty("results")[0].GetProperty("currency").GetString();
+            filteredStockData.LongName = root.GetProperty("results")[0].GetProperty("longName").GetString();
+            filteredStockData.Symbol = root.GetProperty("results")[0].GetProperty("symbol").GetString();
+            filteredStockData.StockPrice = root.GetProperty("results")[0].GetProperty("regularMarketPrice").GetSingle();
+
+            return filteredStockData;
         }
     }
 }
