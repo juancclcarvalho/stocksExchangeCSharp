@@ -13,7 +13,7 @@ namespace stocksExchange
         {
             try
             {
-                string apiUrl = $"https://brapi.dev/api/quote/{stockSymbol}?interval=1m&token={apiToken}";
+                string apiUrl = $"https://brapi.dev/api/quote/{stockSymbol}?token={apiToken}";
                 HttpResponseMessage response = await client.GetAsync(apiUrl);
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
@@ -28,7 +28,8 @@ namespace stocksExchange
 
         public static FilteredStockData FilterStockData(string rawStockData)
         {
-            // TODO: handle exceptions
+            ArgumentNullException.ThrowIfNull(rawStockData);
+
             JsonDocument parsedStockData = JsonDocument.Parse(rawStockData);
             JsonElement root = parsedStockData.RootElement;
 
