@@ -1,18 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Text.Json;
+﻿using System.Text.Json;
+using System.Timers;
+using Timer = System.Timers.Timer;
 
 namespace stocksExchange
 {
     public class StocksApp
     {
+        private static Timer _timer;
+        private static string _stockSymbol;
+        private static float _sellPrice;
+        private static float _buyPrice;
+        private static float _previousStockPrice = 0.0f;
+        private static string _apiToken;
+        private static SMTPServer _smtpServer;
+
         public static void Main(string[] args)
         {
-            string apiToken = Environment.GetEnvironmentVariable("STOCK_API_TOKEN", EnvironmentVariableTarget.User);
-            if (string.IsNullOrEmpty(apiToken))
+            _apiToken = Environment.GetEnvironmentVariable("STOCK_API_TOKEN", EnvironmentVariableTarget.User);
+            if (string.IsNullOrEmpty(_apiToken))
                 throw new ArgumentNullException("No API token found");
 
             string smtpConfigPath = Environment.GetEnvironmentVariable("SMTP_CONFIG_PATH", EnvironmentVariableTarget.User);
@@ -22,37 +27,27 @@ namespace stocksExchange
             string strSMPTConfig = File.ReadAllText(smtpConfigPath);
             SMTPServerConfig smtpConfig = JsonSerializer.Deserialize<SMTPServerConfig>(strSMPTConfig);
 
-            SMTPServer smtpServer = new SMTPServer(smtpConfig);
+            _smtpServer = new SMTPServer(smtpConfig);
 
+            _stockSymbol = args[0];
+            _sellPrice = float.Parse(args[1]);
+            _buyPrice = float.Parse(args[2]);
 
-            string stockSymbol = args[0];
-            float sellPrice = float.Parse(args[1]);
-            float buyPrice = float.Parse(args[2]);
+            MonitorStockService.MonitorStockAndSuggestAction(_stockSymbol, _sellPrice, _buyPrice, ref _previousStockPrice, _apiToken, _smtpServer);
 
-            float previousStockPrice = 0.0f;
+            int queryIntervalMinutes = 30;
+            _timer = new Timer(queryIntervalMinutes * 60 * 1000);
+            _timer.Elapsed += OnTimedEvent;
+            _timer.AutoReset = true;
+            _timer.Enabled = true;
 
-            while (true)
-            {
-                Task<string> stockData = StockApiClient.GetStockDataAsync(stockSymbol, apiToken);
-                float stockPrice = StockApiClient.ParseStockData(stockData.Result);
+            Console.WriteLine("Press [Enter] to exit the program.");
+            Console.ReadLine();
+        }
 
-                if (stockPrice >= sellPrice && previousStockPrice != stockPrice)
-                {
-                    Console.WriteLine($"The price of the stock {stockSymbol} is above {sellPrice}. Sending email to sell it.");
-                    smtpServer.SendEmail("selling", stockSymbol, stockPrice);
-                }
-
-                else if (stockPrice <= buyPrice && previousStockPrice != stockPrice)
-                {
-                    Console.WriteLine($"The price of the stock {stockSymbol} is below {buyPrice}. Sending email to buy it.");
-                    smtpServer.SendEmail("buying", stockSymbol, stockPrice);
-                }
-
-                previousStockPrice = stockPrice;
-
-                // TODO: look for other ways to run the funciton in time intervals
-                System.Threading.Thread.Sleep(10000);
-            }
+        private static void OnTimedEvent(Object source, ElapsedEventArgs e)
+        {
+            MonitorStockService.MonitorStockAndSuggestAction(_stockSymbol, _sellPrice, _buyPrice, ref _previousStockPrice, _apiToken, _smtpServer);
         }
     }
 }
