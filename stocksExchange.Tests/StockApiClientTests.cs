@@ -33,11 +33,26 @@ namespace stocksExchange.Tests
         }
 
         [Fact]
-        public async Task GetStockDataAsync_ReturnsNull_WhenRequestFails()
+        public async Task GetStockDataAsync_ReturnsNull_WhenTokenIsInvalid()
         {
             // Arrange
             string stockSymbol = "VALE3";
             string apiToken = "Invalid Token";
+
+            // Act
+            string actualResponse = await StockApiClient.GetStockDataAsync(stockSymbol, apiToken);
+
+            // Assert
+            Assert.Null(actualResponse);
+
+        }
+
+        [Fact]
+        public async Task GetStockDataAsync_ReturnsNull_WhenStockSymbolIsInvalid()
+        {
+            // Arrange
+            string stockSymbol = "G3X";
+            string apiToken = Environment.GetEnvironmentVariable("STOCK_API_TOKEN", EnvironmentVariableTarget.User);
 
             // Act
             string actualResponse = await StockApiClient.GetStockDataAsync(stockSymbol, apiToken);
@@ -71,13 +86,25 @@ namespace stocksExchange.Tests
         }
 
         [Fact]
-        public void FilterStockData_ThrowsArgumentNullException_WhenRawStockDataIsNull()
+        public void FilterStockData_ReturnsNull_WhenRawStockDataIsNull()
         {
             // Arrange
             string rawStockData = null;
+            var expectedStockData = StockApiClient.FilterStockData(rawStockData);
 
             // Act and Assert
-            Assert.Throws<ArgumentNullException>(() => StockApiClient.FilterStockData(rawStockData));
+            Assert.Null(expectedStockData);
+        }
+
+        [Fact]
+        public void FilterStockData_ReturnsNull_WhenCannotFilterStockData()
+        {
+            // Arrange
+            string rawStockData = "{\"results\":[]}";
+            var expectedStockData = StockApiClient.FilterStockData(rawStockData);
+
+            // Act and Assert
+            Assert.Null(expectedStockData);
         }
 
         private class TestHttpMessageHandler : HttpMessageHandler

@@ -9,6 +9,9 @@
             Task<string> rawStockData = StockApiClient.GetStockDataAsync(stockSymbol, apiToken);
             FilteredStockData filteredStockData = StockApiClient.FilterStockData(rawStockData.Result);
 
+            if (filteredStockData == null)
+                return false;
+
             float stockPrice = filteredStockData.StockPrice;
             string currency = filteredStockData.Currency;
 
