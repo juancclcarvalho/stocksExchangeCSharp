@@ -33,7 +33,19 @@ namespace stocksExchange
             _sellPrice = float.Parse(args[1]);
             _buyPrice = float.Parse(args[2]);
 
-            MonitorStockService.MonitorStockAndSuggestAction(_stockSymbol, _sellPrice, _buyPrice, ref _previousStockPrice, _apiToken, _smtpServer);
+
+            bool monitorOk = MonitorStockService.MonitorStockAndSuggestAction(
+                _stockSymbol, _sellPrice, _buyPrice, ref _previousStockPrice, _apiToken, _smtpServer
+                );
+
+            // It is not necessary to check the status of the monitor again,
+            // since the exceptions handled won't occur if the first run was successful
+            if (!monitorOk)
+            {
+                Console.WriteLine("An error occurred. Press [Enter] to exit the program.");
+                Console.ReadLine();
+                return;
+            }
 
             int queryIntervalMinutes = 30;
             _timer = new Timer(queryIntervalMinutes * 60 * 1000);
@@ -47,7 +59,9 @@ namespace stocksExchange
 
         private static void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
-            MonitorStockService.MonitorStockAndSuggestAction(_stockSymbol, _sellPrice, _buyPrice, ref _previousStockPrice, _apiToken, _smtpServer);
+            MonitorStockService.MonitorStockAndSuggestAction(
+                _stockSymbol, _sellPrice, _buyPrice, ref _previousStockPrice, _apiToken, _smtpServer
+                );
         }
     }
 }

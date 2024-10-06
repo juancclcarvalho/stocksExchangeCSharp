@@ -1,8 +1,8 @@
 ﻿namespace stocksExchange
 {
-    class MonitorStockService
+    public class MonitorStockService
     {
-        public static void MonitorStockAndSuggestAction(
+        public static bool MonitorStockAndSuggestAction(
             string stockSymbol, float sellPrice, float buyPrice, ref float previousStockPrice, string apiToken, SMTPServer smtpServer
             )
         {
@@ -12,32 +12,32 @@
             float stockPrice = filteredStockData.StockPrice;
             string currency = filteredStockData.Currency;
 
+            // No reason to send an email. Return true so main can keep running the monitor
+            if ((stockPrice < sellPrice && stockPrice > buyPrice) || stockPrice == previousStockPrice)
+                return true;
 
-            if (stockPrice >= sellPrice && previousStockPrice != stockPrice)
+            string message = $"The price of {stockSymbol} is {stockPrice} {currency}. ";
+
+            if (stockPrice >= sellPrice)
             {
-                string message = $"The price of {stockSymbol} is {stockPrice} {currency}. " +
-                $"This is at your set selling price of {sellPrice} {currency}. We advise selling it.";
-
+                message += $"This is at your set selling price of {sellPrice} {currency}. We advise selling it.";
                 if (stockPrice > sellPrice)
                     message = message.Replace("at", "above");
-
-                Console.WriteLine(message);
-                smtpServer.SendEmail(message);
             }
 
-            else if (stockPrice <= buyPrice && previousStockPrice != stockPrice)
+            else if (stockPrice <= buyPrice)
             {
-                string message = $"The price of {stockSymbol} is {stockPrice} {currency}. " +
-                $"This is at your set buying price of {buyPrice} {currency}. We advise buying it.";
-
+                message += $"This is at your set buying price of {buyPrice} {currency}. We advise buying it.";
                 if (stockPrice < buyPrice)
                     message = message.Replace("at", "below");
-
-                Console.WriteLine(message);
-                smtpServer.SendEmail(message);
             }
 
+            Console.WriteLine(message);
+            bool emailSent = smtpServer.SendEmail(message);
+
             previousStockPrice = stockPrice;
+
+            return emailSent;
         }
     }
 }
