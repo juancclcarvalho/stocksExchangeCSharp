@@ -35,7 +35,6 @@
                     message = message.Replace("at", "below");
             }
 
-            Console.WriteLine(message);
             bool emailSent = smtpServer.SendEmail(message);
 
             previousStockPrice = stockPrice;
