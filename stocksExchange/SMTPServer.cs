@@ -72,17 +72,17 @@ namespace stocksExchange
             }
             catch (ArgumentException)
             {
-                Console.WriteLine("Server address is empty");
+                Console.WriteLine("Email server address is empty");
                 return false;
             }
             catch (SocketException)
             {
-                Console.WriteLine("Could not connect to the server");
+                Console.WriteLine("Could not connect to the email server");
                 return false;
             }
             catch (AuthenticationException)
             {
-                Console.WriteLine("Could not authenticate with the server");
+                Console.WriteLine("Could not authenticate with the email server");
                 return false;
             }
 
