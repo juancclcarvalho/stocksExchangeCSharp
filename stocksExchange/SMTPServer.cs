@@ -1,12 +1,11 @@
-﻿using System;
-
-using MailKit.Net.Smtp;
-using MailKit;
+﻿using MailKit.Net.Smtp;
+using MailKit.Security;
 using MimeKit;
+using System.Net.Sockets;
 
 namespace stocksExchange
 {
-    class SMTPServer
+    public class SMTPServer
     {
         private string server;
         private int port;
@@ -23,28 +22,71 @@ namespace stocksExchange
             this.receiverEmail = smtpConfig.ReceiverEmail;
         }
 
-        public void SendEmail(string action, string stockSymbol, float stockPrice)
+        public bool SendEmail(string message)
         {
             var email = new MimeMessage();
 
-            email.From.Add(new MailboxAddress("StocksApp", this.senderEmail));
-            email.To.Add(new MailboxAddress("Investor", this.receiverEmail));
+            MailboxAddress from;
+            MailboxAddress to;
+            try
+            {
+                from = new MailboxAddress("StocksApp", this.senderEmail);
+                to = new MailboxAddress("Investor", this.receiverEmail);
+            }
+            catch (ParseException)
+            {
+                Console.WriteLine("Sender or receiver email address is not valid");
+                return false;
+            }
+            catch (SmtpCommandException)
+            {
+                Console.WriteLine("No email address passed from the config");
+                return false;
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Could not load email addresses");
+                return false;
+            }
+
+            email.From.Add(from);
+            email.To.Add(to);
 
             email.Subject = "Update on your stocks";
             email.Body = new TextPart(MimeKit.Text.TextFormat.Html)
             {
-                Text = $"The price of the stock {stockSymbol} is {stockPrice}. You should consider {action} it."
+                Text = message
             };
 
-            using (var smtp = new SmtpClient())
+            try
             {
-                smtp.Connect(this.server, this.port);
+                using (var smtp = new SmtpClient())
+                {
+                    smtp.Connect(this.server, this.port);
 
-                smtp.Authenticate(this.senderEmail, this.password);
+                    smtp.Authenticate(this.senderEmail, this.password);
 
-                smtp.Send(email);
-                smtp.Disconnect(true);
+                    smtp.Send(email);
+                    smtp.Disconnect(true);
+                }
             }
+            catch (ArgumentException)
+            {
+                Console.WriteLine("Email server address is empty");
+                return false;
+            }
+            catch (SocketException)
+            {
+                Console.WriteLine("Could not connect to the email server");
+                return false;
+            }
+            catch (AuthenticationException)
+            {
+                Console.WriteLine("Could not authenticate with the email server");
+                return false;
+            }
+
+            return true;
         }
     }
 }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace stocksExchange
 {
@@ -28,19 +25,30 @@ namespace stocksExchange
 
         public static FilteredStockData FilterStockData(string rawStockData)
         {
-            ArgumentNullException.ThrowIfNull(rawStockData);
+            if (rawStockData == null)
+            {
+                Console.WriteLine("No stock data to filter");
+                return null;
+            }
 
             JsonDocument parsedStockData = JsonDocument.Parse(rawStockData);
             JsonElement root = parsedStockData.RootElement;
 
             FilteredStockData filteredStockData = new FilteredStockData();
-            filteredStockData.Currency = root.GetProperty("results")[0].GetProperty("currency").GetString();
-            filteredStockData.LongName = root.GetProperty("results")[0].GetProperty("longName").GetString();
-            filteredStockData.Symbol = root.GetProperty("results")[0].GetProperty("symbol").GetString();
-            filteredStockData.StockPrice = root.GetProperty("results")[0].GetProperty("regularMarketPrice").GetSingle();
+            try
+            {
+                filteredStockData.Currency = root.GetProperty("results")[0].GetProperty("currency").GetString();
+                filteredStockData.LongName = root.GetProperty("results")[0].GetProperty("longName").GetString();
+                filteredStockData.Symbol = root.GetProperty("results")[0].GetProperty("symbol").GetString();
+                filteredStockData.StockPrice = root.GetProperty("results")[0].GetProperty("regularMarketPrice").GetSingle();
+            }
+            catch (Exception)
+            {
+                Console.WriteLine($"Error filtering stock data");
+                return null;
+            }
 
             return filteredStockData;
         }
     }
 }
-        
